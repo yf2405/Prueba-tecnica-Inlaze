@@ -69,4 +69,26 @@ export class UsersService {
     user.isDeleted = true; // Marcar como eliminado
     return user.save();
   }
+  async toggleLikeMovie(userId: string, movieId: string): Promise<User> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (!user.likedMovies) {
+      user.likedMovies = [];
+    }
+
+    const index = user.likedMovies.indexOf(movieId);
+    
+    if (index > -1) {
+      // Si la película ya está en la lista, la eliminamos (dislike)
+      user.likedMovies.splice(index, 1);
+    } else {
+      // Si la película no está en la lista, la añadimos (like)
+      user.likedMovies.push(movieId);
+    }
+
+    await user.save();
+    return user;
+  }
 }

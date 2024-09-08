@@ -1,30 +1,36 @@
-import { Controller, Post, Body, Res, HttpStatus } from "@nestjs/common";
+import { Controller, Post, Body, Res, HttpStatus, UseGuards, Request, Get } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
 import { Response } from "express";
 import { CreateUserDto } from "../users/dto/create-user.dto";
 import { JwtService } from "@nestjs/jwt";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
+import { JwtAuthGuard } from "./jwt.strategy";
 
 @Controller("auth")
 export class AuthController {
-  constructor(
+  public constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly authService: AuthService,
   ) {}
 
   @Post("signup")
-  async signup(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
+  public async signup(
+    @Body() createUserDto: CreateUserDto, 
+    @Res() res: Response,
+  ): Promise<Response> {
     const { email, password, name } = createUserDto;
 
     try {
       if (!email || !password || !name) {
-        throw new Error("All fields are required");
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "All fields are required",
+        });
       }
 
       const userExists = await this.usersService.findByEmail(email);
-
       if (userExists) {
         return res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
@@ -33,12 +39,11 @@ export class AuthController {
       }
 
       const user = await this.usersService.createUser(email, password, name);
-
-      // Generamos el payload y el token JWT
+      // Generar el payload y el token JWT
       const payload = { sub: user._id, email: user.email };
       const token = this.jwtService.sign(payload);
 
-      // Establecemos la cookie con el token JWT
+      // Establecer la cookie con el token JWT
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -54,33 +59,35 @@ export class AuthController {
           password: undefined, // No devolver el password en la respuesta
         },
       });
-    } catch (error: any) {
+    } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: error.message,
+        message: (error as Error).message,
       });
     }
   }
-  // Nuevo endpoint para iniciar sesión (login)
+
   @Post("login")
-  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
+  public async login(
+    @Body() loginDto: LoginDto, @Res() res: Response): Promise<Response> {
     try {
       const result = await this.authService.login(loginDto);
 
-      res.status(HttpStatus.OK).json({
+      return res.status(HttpStatus.OK).json({
         success: true,
         message: "Login successful",
         data: result,
       });
-    } catch (error: any) {
-      res.status(HttpStatus.UNAUTHORIZED).json({
+    } catch (error) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
-        message: error.message,
+        message: (error as Error).message,
       });
     }
   }
+
   @Post("logout")
-  async logout(@Res() res: Response) {
+  public logout(@Res() res: Response): Response {
     try {
       // Eliminar la cookie del token
       res.clearCookie("token", {
@@ -89,7 +96,6 @@ export class AuthController {
         sameSite: "strict",
       });
 
-      // Asegurarse de enviar la respuesta aquí mismo
       return res.status(HttpStatus.OK).json({
         success: true,
         message: "Logout successful",
@@ -101,4 +107,15 @@ export class AuthController {
       });
     }
   }
+
+
+@UseGuards(JwtAuthGuard)
+@Get('me')
+public async getMe(@Request() req, @Res() res: Response) {
+  const user = req.user;  // Aquí obtienes el usuario del token JWT si es válido
+  return res.status(200).json({
+    success: true,
+    user,  // Devuelve los datos del usuario al frontend
+  });
+}
 }

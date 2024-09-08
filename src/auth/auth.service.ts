@@ -6,14 +6,13 @@ import type { LoginDto } from "./dto/login.dto";
 
 @Injectable()
 export class AuthService {
-  constructor(
+ public constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService, // Inyectamos JwtService
   ) {}
 
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
-
     const user = await this.usersService.findByEmailWithPassword(email);
     if (!user) {
       throw new UnauthorizedException("Invalid credentials");

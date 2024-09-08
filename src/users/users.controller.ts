@@ -1,7 +1,8 @@
-import { Controller, Get, Param, Res, HttpStatus, Body, Put, Delete } from "@nestjs/common";
+import { Controller, Get, Param, Res, HttpStatus, Body, Put, Delete, UseGuards, Req, Post } from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { Response } from "express";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { JwtAuthGuard } from "src/auth/jwt.strategy";
 
 @Controller("users")
 export class UsersController {
@@ -86,4 +87,12 @@ export class UsersController {
       });
     }
   }
+
+  @UseGuards(JwtAuthGuard)  // Asegurarse de que el usuario esté autenticado
+  @Post('like-movie/:movieId')
+  async likeMovie(@Req() req, @Param('movieId') movieId: string) {
+    const userId = req.user.userId;
+    return this.usersService.toggleLikeMovie(userId, movieId);
+  }
 }
+
