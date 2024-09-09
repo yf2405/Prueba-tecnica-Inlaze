@@ -1,24 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { Module, Controller, Get } from '@nestjs/common';
+import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import * as cookieParser from 'cookie-parser';
 
 dotenv.config();
-
-// Define el controlador en el mismo archivo
-@Controller()
-class AppController {
-  @Get()
-  getHello(): string {
-    return 'Hola Mundo!';
-  }
-}
-
-// Define el módulo en el mismo archivo
-@Module({
-  controllers: [AppController],
-})
-class AppModule {}
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
