@@ -1,9 +1,8 @@
-import { Controller, Get, Param, Res, HttpStatus, Body, Put, Delete, UseGuards, Req, Post } from "@nestjs/common";
+import { Controller, Get, Param, Res, HttpStatus, Body, Put, Delete, UseGuards,  Post,} from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { Response } from "express";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { JwtAuthGuard } from "src/auth/jwt.strategy";
-
 
 @Controller("users")
 export class UsersController {
@@ -18,13 +17,15 @@ export class UsersController {
         success: true,
         user,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       return res.status(HttpStatus.NOT_FOUND).json({
         success: false,
-        message: error.message,
+        message: errorMessage,
       });
     }
   }
+
   @Get()
   async getAllUsers(@Res() res: Response) {
     try {
@@ -33,10 +34,11 @@ export class UsersController {
         success: true,
         users,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: error.message,
+        message: errorMessage,
       });
     }
   }
@@ -65,13 +67,15 @@ export class UsersController {
           password: undefined, // No devolver el password en la respuesta
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       return res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: error.message,
+        message: errorMessage,
       });
     }
   }
+
   @Delete(":id")
   async softDeleteUser(@Param("id") id: string, @Res() res: Response) {
     try {
@@ -81,29 +85,30 @@ export class UsersController {
         message: "User soft deleted successfully",
         user,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       return res.status(HttpStatus.NOT_FOUND).json({
         success: false,
-        message: error.message,
+        message: errorMessage,
       });
     }
   }
 
-// Asegurarse de que el usuario esté autenticado
-@UseGuards(JwtAuthGuard)
-@Post('like-movie/:movieId')
-async likeMovie(@Req() req, @Param('movieId') movieId: string) {
-  console.log('User from request:', req.user);  // Verifica el contenido de req.user
-  const userId = req.user._id; // Asegúrate de que el ID del usuario sea correcto
-  console.log('User ID:', userId);
-  
-  try {
-    const updatedUser = await this.usersService.toggleLikeMovie(userId, movieId);
-    console.log('Updated User:', updatedUser); // Verifica el usuario actualizado
-    return updatedUser;
-  } catch (error) {
-    console.error('Error toggling like movie:', error);
-    throw error;  // Lanza el error para manejarlo en el controlador
+  // Asegurarse de que el usuario esté autenticado
+  @UseGuards(JwtAuthGuard)
+  @Post('like-movie/:movieId')
+  async likeMovie(@Res() req: any, @Param('movieId') movieId: string) {
+    console.log('User from request:', req.user);  // Verifica el contenido de req.user
+    const userId = req.user._id; // Asegúrate de que el ID del usuario sea correcto
+    console.log('User ID:', userId);
+    
+    try {
+      const updatedUser = await this.usersService.toggleLikeMovie(userId, movieId);
+      console.log('Updated User:', updatedUser); // Verifica el usuario actualizado
+      return updatedUser;
+    } catch (error) {
+      console.error('Error toggling like movie:', error);
+      throw error;  // Lanza el error para manejarlo en el controlador
+    }
   }
-}
 }
