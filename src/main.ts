@@ -9,13 +9,13 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
 
-  // Habilitar CORS
   app.enableCors({
-    origin: 'prueba-tecnica-fronted-inlaze-6gde.vercel.app',  // Cambia esto al dominio de tu frontend
-    credentials: true,  // Si estás utilizando cookies o autenticación
+    origin: 'prueba-tecnica-fronted-inlaze-6gde.vercel.app',
+    credentials: true,
   });
 
-  await app.listen(5000);
+  const port = process.env.PORT || 5000;
+  await app.listen(port);
 }
 
 void bootstrap();
