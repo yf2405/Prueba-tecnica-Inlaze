@@ -10,7 +10,7 @@ async function bootstrap(): Promise<void> {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: 'https://prueba-tecnica-fronted-inlaze-6gde-fslejln6m-yf2405s-projects.vercel.app', // Incluye el esquema y asegúrate que sea el dominio correcto
+  origin: process.env.FRONTEND_URL,
   credentials: true,
   });
 
