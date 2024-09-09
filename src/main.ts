@@ -10,8 +10,8 @@ async function bootstrap(): Promise<void> {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: 'prueba-tecnica-fronted-inlaze-6gde.vercel.app',
-    credentials: true,
+    origin: 'https://prueba-tecnica-fronted-inlaze-6gde-fslejln6m-yf2405s-projects.vercel.app', // Incluye el esquema y asegúrate que sea el dominio correcto
+  credentials: true,
   });
 
   const port = process.env.PORT || 5000;
