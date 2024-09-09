@@ -5,13 +5,13 @@ export class CreateUserDto {
   @Transform(({ value }) => value.trim())
   @IsString()
   @MinLength(1)
-  name?: string;
+  name: string = '' 
 
   @IsEmail()
-  email?: string;
+  email: string = ''
 
   @Transform(({ value }) => value.trim())
   @IsString()
   @MinLength(6)
-  password?: string;
+  password: string = ''
 }

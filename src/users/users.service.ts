@@ -38,8 +38,8 @@ export class UsersService {
     return this.userModel.findOne({ email });
   }
 
-  async findByEmailWithPassword(email?: string) {
-    return this.userModel.findOne({ email }).select("id name email password");
+  async findByEmailWithPassword(email: string) {
+    return await this.userModel.findOne({ email }).select('+password').exec();
   }
 
   async getAllUsers(): Promise<User[]> {

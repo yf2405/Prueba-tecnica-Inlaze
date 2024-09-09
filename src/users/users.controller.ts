@@ -4,6 +4,7 @@ import { Response } from "express";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { JwtAuthGuard } from "src/auth/jwt.strategy";
 
+
 @Controller("users")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -88,11 +89,21 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)  // Asegurarse de que el usuario esté autenticado
-  @Post('like-movie/:movieId')
-  async likeMovie(@Req() req, @Param('movieId') movieId: string) {
-    const userId = req.user.userId;
-    return this.usersService.toggleLikeMovie(userId, movieId);
+// Asegurarse de que el usuario esté autenticado
+@UseGuards(JwtAuthGuard)
+@Post('like-movie/:movieId')
+async likeMovie(@Req() req, @Param('movieId') movieId: string) {
+  console.log('User from request:', req.user);  // Verifica el contenido de req.user
+  const userId = req.user._id; // Asegúrate de que el ID del usuario sea correcto
+  console.log('User ID:', userId);
+  
+  try {
+    const updatedUser = await this.usersService.toggleLikeMovie(userId, movieId);
+    console.log('Updated User:', updatedUser); // Verifica el usuario actualizado
+    return updatedUser;
+  } catch (error) {
+    console.error('Error toggling like movie:', error);
+    throw error;  // Lanza el error para manejarlo en el controlador
   }
 }
-
+}

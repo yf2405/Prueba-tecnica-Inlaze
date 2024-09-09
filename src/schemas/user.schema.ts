@@ -3,14 +3,14 @@ import { Document } from "mongoose";
 
 @Schema({ timestamps: true })
 export class User extends Document {
-  @Prop({ required: true, unique: true })
-  email?: string;
+  @Prop({ required: true, unique: true, validate: { validator: (v: string) => v.trim().length > 0, message: 'El campo no puede estar vacío.' } })
+  email!: string;
 
-  @Prop({ required: true })
-  password?: string;
+  @Prop({ required: true, validate: { validator: (v: string) => v.trim().length > 0, message: 'El campo no puede estar vacío.' } })
+  password!: string;
 
-  @Prop({ required: true })
-  name?: string;
+  @Prop({ required: true, validate: { validator: (v: string) => v.trim().length > 0, message: 'El campo no puede estar vacío.' } })
+  name!: string;
 
   @Prop({ default: Date.now })
   lastLogin?: Date;
@@ -24,11 +24,12 @@ export class User extends Document {
   @Prop()
   resetPasswordExpiresAt?: Date;
 
-  @Prop()
-  verificationToken?: string;
-
-  @Prop()
-  verificationTokenExpiresAt?: Date;
+  // Especifica el tipo explícitamente
+  @Prop({ type: String, required: true, validate: { validator: (v: string) => v.trim().length > 0, message: 'El campo no puede estar vacío.' } })
+  verificationToken?: string;  // Ahora puede ser string o undefined
+  // Asegúrate de que este campo también sea opcional y tenga tipo Date
+  @Prop({ type: Date, default: null })
+  verificationTokenExpiresAt?: Date | null;
 
   @Prop({ type: [String], default: [] })
   likedMovies?: string[];
