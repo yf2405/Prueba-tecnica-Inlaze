@@ -5,6 +5,7 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import * as bcrypt from "bcryptjs";
 import { User } from "../schemas/user.schema";
+import { sendVerificationEmail } from "src/auth/mailtrap/emails.";
 
 @Injectable()
 export class UsersService {
@@ -21,8 +22,11 @@ export class UsersService {
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 horas
     });
+    
+    await user.save();
 
-    return user.save();
+    await sendVerificationEmail(user.email, verificationToken);
+    return user;
   }
 
   // Método para obtener un usuario por ID

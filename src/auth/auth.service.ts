@@ -1,4 +1,4 @@
-/*
+
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -21,6 +21,7 @@ export class AuthService {
       return { success: false, message: 'Invalid or expired verification code' };
     }
 
+
     // Marcar al usuario como verificado
     user.isVerified = true;
     user.verificationToken = undefined;  // Eliminar el token
@@ -40,4 +41,3 @@ export class AuthService {
     };
   }
 }
-  */

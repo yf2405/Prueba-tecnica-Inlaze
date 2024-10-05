@@ -25,9 +25,8 @@ export class User extends Document {
   resetPasswordExpiresAt?: Date;
 
   // Especifica el tipo explícitamente
-  @Prop({ type: String, required: true, validate: { validator: (v: string) => v.trim().length > 0, message: 'El campo no puede estar vacío.' } })
-  verificationToken?: string;  // Ahora puede ser string o undefined
-  // Asegúrate de que este campo también sea opcional y tenga tipo Date
+  @Prop({ type: String, validate: { validator: (v: string) => v.trim().length > 0, message: 'El campo no puede estar vacío.' } })
+  verificationToken?: string;  // No requerido
   @Prop({ type: Date, default: null })
   verificationTokenExpiresAt?: Date | null;
 

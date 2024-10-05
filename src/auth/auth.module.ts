@@ -8,7 +8,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { User, UserSchema } from "src/schemas/user.schema";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtStrategy } from "./jwt.strategy"; // Importa JwtStrategy
-//import { AuthService } from "./auth.service";
+import { AuthService } from "./auth.service";
 
 @Module({
   imports: [
@@ -25,7 +25,7 @@ import { JwtStrategy } from "./jwt.strategy"; // Importa JwtStrategy
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [ JwtStrategy], // Asegúrate de incluir JwtStrategy en los providers
+  providers: [ JwtStrategy, AuthService], // Asegúrate de incluir JwtStrategy en los providers
   exports: [JwtModule], // Exporta el JwtModule si lo necesitas en otros módulos
 })
 export class AuthModule {}

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res, HttpStatus,  } from "@nestjs/common";
+import { Controller, Post, Body, Res, HttpStatus, UseGuards, Get, Req,  } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
 import { Response } from "express";
 import { CreateUserDto } from "../users/dto/create-user.dto";
@@ -7,16 +7,19 @@ import { LoginDto } from "./dto/login.dto";
 import { JwtAuthGuard } from "./jwt.strategy";
 import * as bcrypt from "bcryptjs";
 import { cookieOptions } from "./cookieIotions";
-//import { AuthService } from "./auth.service";
+import { AuthService } from "./auth.service";
+import { User } from "src/schemas/user.schema";
 //import { sendVerificationEmail } from "./mailtrap/emails.";
 
-
+interface Request {
+  user?: User; // Aquí defines que `req.user` es del tipo `User`
+}
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-   // private readonly authService: AuthService
+    private readonly authService: AuthService
   ) {}
 
   @Post('signup')
@@ -48,8 +51,8 @@ public async signup(
 
     res.cookie('authToken', token, cookieOptions);
 
-    //const verificationToken = Math.floor(100000 + Math.random() * 900000).toString()
-  //  await sendVerificationEmail(user.email, verificationToken);
+   // const verificationToken = Math.floor(100000 + Math.random() * 900000).toString()
+    
 
     return res.status(HttpStatus.CREATED).json({
       success: true,
@@ -137,9 +140,8 @@ async login(@Body() loginDto: LoginDto,  @Res() res: Response,) {
       });
     }
   }
-}
-  /*
-  @UseGuards(JwtAuthGuard)  // Verifica que el usuario esté autenticado
+
+
   @Post('verify-email')
   async verifyEmail(
     @Body('code') code: string,
@@ -148,12 +150,34 @@ async login(@Body() loginDto: LoginDto,  @Res() res: Response,) {
     try {
       const { success, message, user } = await this.authService.verifyEmail(code);
       return res.status(HttpStatus.OK).json({ success, message, user });
-    } catch (error) {
+    } catch (error:any) {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: 'Server error',
+        message: error.message,
       });
     }
   }
-}
-  */
+  @Get('checkAuth')
+  @UseGuards(JwtAuthGuard)
+  async checkAuth(@Req() req: Request, @Res() res: Response) {
+    try {
+      const user = req.user; // Aquí debe estar el usuario validado
+  
+      if (!user) {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'User not found',
+        });
+      }
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        user,
+      });
+    } catch (error: any) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+}  
